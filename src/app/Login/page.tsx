@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
+import Link from "next/link";
 
 // TextType component (ไม่ลบตัวอักษร)
 const TextType = ({
@@ -161,12 +162,14 @@ export default function LoginPage() {
             เข้าสู่ระบบ
           </button>
 
-          <button
-            type="button"
-            className="w-full py-4 bg-gradient-to-r from-green-400 to-green-500 text-white font-semibold rounded-2xl shadow-lg hover:from-green-500 hover:to-green-600 transition transform hover:scale-105 hover:shadow-green-400/50 duration-300"
-          >
-            ลงทะเบียน
-          </button>
+          <Link href="/SingUp">
+            <button
+              type="button"
+              className="w-full py-4 bg-gradient-to-r from-green-400 to-green-500 text-white font-semibold rounded-2xl shadow-lg hover:from-green-500 hover:to-green-600 transition transform hover:scale-105 hover:shadow-green-400/50 duration-300"
+            >
+              ลงทะเบียน
+            </button>
+          </Link>
         </form>
       </div>
     </div>
