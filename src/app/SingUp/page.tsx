@@ -20,7 +20,7 @@ export default function SignupForm() {
         </div>
 
         {/* Right Side (Form) */}
-        <div className="flex items-center justify-center w-full md:w-1/2 px-6 py-12 md:py-0">
+        <div className="flex items-center justify-center w-full  px-6 py-12 md:py-0">
           <form className="bg-white rounded-3xl shadow-xl w-full max-w-md p-10 border border-gray-200 transition-all duration-300 hover:shadow-2xl">
             {/* Title */}
             <div className="flex justify-center mb-10">
