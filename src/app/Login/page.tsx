@@ -1,51 +1,9 @@
 "use client";
 
-import { useState, FormEvent, ChangeEvent, useEffect } from "react";
+import { useState, FormEvent, ChangeEvent } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-
-// TextType component (ไม่ลบตัวอักษร)
-const TextType = ({
-  text,
-  typingSpeed = 50,
-  showCursor = true,
-  cursorCharacter = "|",
-}: {
-  text: string[];
-  typingSpeed?: number;
-  showCursor?: boolean;
-  cursorCharacter?: string;
-}) => {
-  const [displayedText, setDisplayedText] = useState("");
-  const [textIndex, setTextIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-
-  useEffect(() => {
-    if (textIndex >= text.length) return;
-
-    const timeout = setTimeout(() => {
-      if (charIndex < text[textIndex].length) {
-        setDisplayedText((prev) => prev + text[textIndex][charIndex]);
-        setCharIndex((prev) => prev + 1);
-      } else if (textIndex < text.length - 1) {
-        setDisplayedText((prev) => prev + "\n");
-        setCharIndex(0);
-        setTextIndex((prev) => prev + 1);
-      }
-    }, typingSpeed);
-
-    return () => clearTimeout(timeout);
-  }, [charIndex, textIndex, text, typingSpeed]);
-
-  return (
-    <p className="text-lg md:text-xl leading-relaxed whitespace-pre-line opacity-90">
-      {displayedText}
-      {showCursor && textIndex < text.length && (
-        <span className="animate-pulse">{cursorCharacter}</span>
-      )}
-    </p>
-  );
-};
+import { motion } from "framer-motion";
 
 // LoginPage component
 export default function LoginPage() {
@@ -61,22 +19,30 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-r from-blue-100 via-blue-50 to-blue-50">
-      {/* Left side - Text Typing Effect */}
+      {/* Left side - Animated Text */}
       <div className="w-full md:w-1/2 hidden md:flex justify-center items-center p-12 bg-gradient-to-br from-blue-600 to-blue-800">
         <div className="max-w-md text-center text-white">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 drop-shadow-lg">
+          <motion.h1
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            className="text-4xl md:text-5xl font-extrabold mb-6 drop-shadow-lg"
+          >
             <span className="inline-block relative after:content-[''] after:block after:w-full after:border-b-4 after:border-white after:mt-3">
               ยินดีต้อนรับเข้าสู่
             </span>
-          </h1>
-          <TextType
-            text={[
-              "ศึกษาความเครียดจากการเรียนที่อาจส่งผลต่อการรับประทานอาหารในแต่ละวันและศึกษาผลจากการรับประทานอาหารต่างๆ ที่ส่งผลต่อ สุขภาวะทางกายและทางจิตใจ",
-            ]}
-            typingSpeed={40}
-            showCursor={true}
-            cursorCharacter="|"
-          />
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.5 }}
+            className="text-lg md:text-xl leading-relaxed opacity-90"
+          >
+            ศึกษาความเครียดจากการเรียนที่อาจส่งผลต่อการรับประทานอาหารในแต่ละวัน
+            และศึกษาผลจากการรับประทานอาหารต่างๆ ที่ส่งผลต่อ
+            สุขภาวะทางกายและทางจิตใจ
+          </motion.p>
         </div>
       </div>
 
