@@ -2,6 +2,7 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function SignupForm() {
   const [email, setEmail] = useState<string>("");
@@ -13,34 +14,57 @@ export default function SignupForm() {
   const handleSignup = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log({ email, password, confirmPassword });
+    // TODO: call API -> ถ้าสำเร็จ redirect ไป login
+  };
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, delay: i * 0.15 },
+    }),
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 via-white to-blue-100 px-4 py-10 flex justify-center font-sans">
-      <div className="grid md:grid-cols-2 bg-white rounded-2xl shadow-lg overflow-hidden w-full max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 via-white to-blue-100 px-4 py-10 flex justify-center items-center font-sans">
+      <div className="grid md:grid-cols-2 bg-white/40 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden w-full max-w-5xl border border-white/50">
         {/* Left Side */}
-        <div className="hidden md:flex items-center justify-center bg-white p-6">
+        <motion.div
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1 }}
+          className="hidden md:flex items-center justify-center bg-gradient-to-br p-8"
+        >
           <img
             src="/Human.png"
             alt="signup"
-            className="rounded-xl object-cover"
+            className="rounded-2xl shadow-xl w-4/5 h-auto object-contain hover:scale-105 transition-transform duration-500"
           />
-        </div>
+        </motion.div>
 
         {/* Right Side (Form) */}
         <div className="flex items-center justify-center w-full px-6 py-12 md:py-0">
-          <form
+          <motion.form
             onSubmit={handleSignup}
-            className="bg-white rounded-3xl shadow-xl w-full max-w-md p-10 border border-gray-200 transition-all duration-300 hover:shadow-2xl"
+            initial="hidden"
+            animate="visible"
+            className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-xl w-full max-w-md p-10 border border-gray-200 hover:shadow-2xl transition-all duration-500"
           >
-            <div className="flex justify-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold text-black relative inline-block after:content-[''] after:block after:w-full after:border-b-4 after:border-black after:mt-2 drop-shadow-md">
+            {/* Title */}
+            <motion.div
+              variants={fadeInUp}
+              custom={0}
+              className="flex justify-center mb-8"
+            >
+              <h2 className="text-4xl font-extrabold text-gray-900 text-center">
                 สร้างบัญชี
+                <span className="block w-24 mx-auto mt-3 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-pulse"></span>
               </h2>
-            </div>
+            </motion.div>
 
             {/* Email */}
-            <div className="mb-6">
+            <motion.div variants={fadeInUp} custom={1} className="mb-6">
               <input
                 type="text"
                 placeholder="อีเมล์หรือโทรศัพท์"
@@ -48,12 +72,12 @@ export default function SignupForm() {
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setEmail(e.target.value)
                 }
-                className="w-full px-5 py-4 rounded-2xl bg-white/90 border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-md placeholder:text-gray-500 transition duration-300 hover:shadow-xl focus:shadow-xl"
+                className="w-full px-5 py-4 rounded-2xl bg-white border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-md placeholder:text-gray-500 transition-all duration-300 hover:shadow-lg focus:shadow-xl"
               />
-            </div>
+            </motion.div>
 
             {/* Password */}
-            <div className="relative mb-6">
+            <motion.div variants={fadeInUp} custom={2} className="relative mb-6">
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="ป้อนรหัสผ่าน"
@@ -61,7 +85,7 @@ export default function SignupForm() {
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setPassword(e.target.value)
                 }
-                className="w-full px-5 py-4 rounded-2xl bg-white/90 border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-md placeholder:text-gray-500 transition pr-12 duration-300 hover:shadow-xl focus:shadow-xl"
+                className="w-full px-5 py-4 rounded-2xl bg-white border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-md placeholder:text-gray-500 transition pr-12 duration-300 hover:shadow-lg focus:shadow-xl"
               />
               <button
                 type="button"
@@ -69,18 +93,18 @@ export default function SignupForm() {
                   e.preventDefault();
                   setShowPassword((prev) => !prev);
                 }}
-                className="absolute top-1/2 right-4 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition duration-300"
+                className="absolute top-1/2 right-4 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition duration-200"
               >
                 {showPassword ? (
-                  <EyeIcon className="w-5 h-5 animate-bounce" />
+                  <EyeIcon className="w-5 h-5" />
                 ) : (
-                  <EyeSlashIcon className="w-5 h-5 animate-pulse" />
+                  <EyeSlashIcon className="w-5 h-5" />
                 )}
               </button>
-            </div>
+            </motion.div>
 
             {/* Confirm Password */}
-            <div className="relative mb-6">
+            <motion.div variants={fadeInUp} custom={3} className="relative mb-6">
               <input
                 type={showConfirm ? "text" : "password"}
                 placeholder="ป้อนรหัสผ่านอีกครั้ง"
@@ -88,7 +112,7 @@ export default function SignupForm() {
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setConfirmPassword(e.target.value)
                 }
-                className="w-full px-5 py-4 rounded-2xl bg-white/90 border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-md placeholder:text-gray-500 transition pr-12 duration-300 hover:shadow-xl focus:shadow-xl"
+                className="w-full px-5 py-4 rounded-2xl bg-white border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-md placeholder:text-gray-500 transition pr-12 duration-300 hover:shadow-lg focus:shadow-xl"
               />
               <button
                 type="button"
@@ -96,26 +120,38 @@ export default function SignupForm() {
                   e.preventDefault();
                   setShowConfirm((prev) => !prev);
                 }}
-                className="absolute top-1/2 right-4 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition duration-300"
+                className="absolute top-1/2 right-4 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition duration-200"
               >
                 {showConfirm ? (
-                  <EyeIcon className="w-5 h-5 animate-bounce" />
+                  <EyeIcon className="w-5 h-5" />
                 ) : (
-                  <EyeSlashIcon className="w-5 h-5 animate-pulse" />
+                  <EyeSlashIcon className="w-5 h-5" />
                 )}
               </button>
-            </div>
+            </motion.div>
 
             {/* Submit */}
-            <Link href={"/Login"}>
-              <button
-                type="submit"
-                className="w-full py-4 mb-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-2xl shadow-lg hover:from-blue-600 hover:to-blue-800 transition transform hover:scale-105 hover:shadow-blue-500/50 duration-300"
-              >
-                สร้างบัญชี
-              </button>
+            <Link
+            href={"/Login"}>
+            <motion.button
+              variants={fadeInUp}
+              custom={4}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              type="submit"
+              className="w-full py-4 mb-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-blue-400/60 transition duration-300"
+            >
+              สร้างบัญชี
+            </motion.button>
             </Link>
-          </form>
+            {/* Already have account */}
+            <motion.p
+              variants={fadeInUp}
+              custom={5}
+              className="text-center text-gray-600 text-sm"
+            >
+            </motion.p>
+          </motion.form>
         </div>
       </div>
     </div>
