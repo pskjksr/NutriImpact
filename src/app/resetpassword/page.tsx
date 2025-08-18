@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, ChangeEvent } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function ForgotPasswordPage() {
   const [input, setInput] = useState<string>("");
@@ -67,14 +68,16 @@ export default function ForgotPasswordPage() {
             </div>
 
             {/* Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-              type="submit"
-              className="w-full py-4 mb-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:from-blue-600 hover:to-indigo-700 hover:shadow-blue-400/60 transition-all duration-300"
-            >
-              รับรหัส OTP
-            </motion.button>
+            <Link href="/OTP">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                type="button"
+                className="w-full py-4 mb-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:from-blue-600 hover:to-indigo-700 hover:shadow-blue-400/60 transition-all duration-300"
+              >
+                รับรหัส OTP
+              </motion.button>
+            </Link>
           </form>
         </motion.div>
       </div>

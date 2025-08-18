@@ -122,20 +122,23 @@ export default function LoginPage() {
             custom={3}
             className="flex items-center justify-between mb-8 text-sm"
           >
-            <label className="flex items-center gap-3 text-gray-700 select-none">
+            <label className="flex items-center gap-3 bg-blue-50 px-3 py-2 rounded-xl cursor-pointer hover:bg-blue-100 transition select-none">
               <input
                 type="checkbox"
                 checked={remember}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setRemember(e.target.checked)
                 }
-                className="w-5 h-5 rounded-lg text-blue-600 focus:ring-2 focus:ring-blue-400 transition duration-200"
+                className="w-5 h-5 rounded-md text-blue-600 focus:ring-2 focus:ring-blue-400 transition"
               />
-              จดจำการเข้าสู่ระบบ
+              <span className="text-gray-700 font-medium">
+                จดจำการเข้าสู่ระบบ
+              </span>
             </label>
+
             <a
               href="/resetpassword"
-              className="text-blue-600 hover:underline transition duration-200"
+              className="relative text-blue-600 font-medium text-sm after:content-[''] after:block after:w-0 after:h-[2px] after:bg-gradient-to-r after:from-blue-500 after:to-indigo-600 after:rounded-full after:transition-all after:duration-300 hover:after:w-full"
             >
               ลืมรหัสผ่าน ?
             </a>
