@@ -4,6 +4,7 @@ import { useState, FormEvent } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -139,6 +140,7 @@ export default function ResetPasswordPage() {
             </motion.div>
 
             {/* Submit */}
+            <Link href="/finishotp">
             <motion.button
               variants={fadeInUp}
               custom={3}
@@ -151,6 +153,7 @@ export default function ResetPasswordPage() {
             >
               รีเซ็ตรหัสผ่าน
             </motion.button>
+            </Link>
           </motion.form>
         </div>
       </div>
