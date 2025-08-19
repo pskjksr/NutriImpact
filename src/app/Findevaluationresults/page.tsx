@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -13,17 +13,22 @@ import {
 export default function DashboardPage() {
   const totalUsers = 125; // จำนวนผู้ใช้งานทั้งหมด
   const activeUsers = 78; // จำนวนผู้ใช้งานที่กำลัง active
-
-  const allUsers = Array.from({ length: totalUsers }, (_, idx) => ({
-    id: idx + 1,
-    name: `User ${idx + 1}`,
-    department: "Medical Department",
-    stress: Math.floor(Math.random() * 20) + 5,
-    lastActive: "19/08/2025",
-  }));
-
   const usersPerPage = 10;
+
+  const [allUsers, setAllUsers] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // สร้างข้อมูลผู้ใช้หลัง client render
+  useEffect(() => {
+    const users = Array.from({ length: totalUsers }, (_, idx) => ({
+      id: idx + 1,
+      name: `User ${idx + 1}`,
+      department: "Medical Department",
+      stress: Math.floor(Math.random() * 20) + 5,
+      lastActive: "19/08/2025",
+    }));
+    setAllUsers(users);
+  }, []);
 
   const totalPages = Math.ceil(allUsers.length / usersPerPage);
   const startIdx = (currentPage - 1) * usersPerPage;
@@ -35,20 +40,20 @@ export default function DashboardPage() {
       <aside className="w-64 bg-blue-600 text-white flex flex-col justify-between p-6 shadow-lg">
         <div className="space-y-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            📊 Dashboard
+            Nutritional
           </h1>
           <nav className="space-y-3">
             <Link
               href="/Findevaluationresults"
               className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
             >
-              <HomeIcon className="w-5 h-5" /> Home
+              <HomeIcon className="w-5 h-5" /> หน้าเเรก
             </Link>
             <Link
-              href="#"
+              href="/graph"
               className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
             >
-              <ChartBarIcon className="w-5 h-5" /> Analytics
+              <ChartBarIcon className="w-5 h-5" /> กราฟวิเคราะห์ข้อมูล
             </Link>
           </nav>
         </div>
@@ -58,7 +63,7 @@ export default function DashboardPage() {
             href="/Login"
             className="flex items-center gap-3 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-400 transition"
           >
-            <ArrowRightOnRectangleIcon className="w-5 h-5" /> Logout
+            <ArrowRightOnRectangleIcon className="w-5 h-5" /> ออกจากระบบ
           </Link>
         </div>
       </aside>
@@ -79,7 +84,7 @@ export default function DashboardPage() {
                 <UserIcon className="w-8 h-8" />
               </div>
               <div>
-                <p className="text-gray-500 font-medium">Total Users</p>
+                <p className="text-gray-500 font-medium">ผู้ใช้ทั้งหมด</p>
                 <p className="text-2xl font-bold text-blue-600">{totalUsers}</p>
               </div>
             </div>
@@ -97,8 +102,10 @@ export default function DashboardPage() {
                 <UserIcon className="w-8 h-8" />
               </div>
               <div>
-                <p className="text-gray-500 font-medium">Active Users</p>
-                <p className="text-2xl font-bold text-green-600">{activeUsers}</p>
+                <p className="text-gray-500 font-medium">ผู้ใช้งานตอนนี้</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {activeUsers}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -112,7 +119,7 @@ export default function DashboardPage() {
           className="bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 border border-blue-100"
         >
           <h2 className="text-blue-600 font-bold text-lg mb-4 flex items-center gap-2">
-            👥 User List
+            👥 รายการผู้ใช้
           </h2>
 
           <div className="space-y-4">
@@ -150,14 +157,14 @@ export default function DashboardPage() {
               onClick={() => setCurrentPage((p) => p - 1)}
               className="px-4 py-2 rounded-lg bg-blue-100 text-blue-600 disabled:opacity-50"
             >
-              Back
+              กลับ
             </button>
             <button
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => p + 1)}
               className="px-4 py-2 rounded-lg bg-blue-100 text-blue-600 disabled:opacity-50"
             >
-              Next
+              ต่อไป
             </button>
           </div>
         </motion.div>
