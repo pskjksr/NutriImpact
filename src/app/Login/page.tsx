@@ -145,6 +145,7 @@ export default function LoginPage() {
           </motion.div>
 
           {/* Buttons */}
+          <Link href="/Findevaluationresults">
           <motion.button
             variants={fadeInUp}
             custom={4}
@@ -155,6 +156,7 @@ export default function LoginPage() {
           >
             เข้าสู่ระบบ
           </motion.button>
+          </Link>
 
           <Link href="/SingUp">
             <motion.button
