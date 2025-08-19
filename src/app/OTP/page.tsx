@@ -130,6 +130,7 @@ export default function OtpPage() {
             </div>
 
             {/* Submit Button */}
+            <Link href="/password">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
@@ -138,6 +139,7 @@ export default function OtpPage() {
             >
               ยืนยัน OTP
             </motion.button>
+            </Link>
           </form>
         </motion.div>
       </div>
