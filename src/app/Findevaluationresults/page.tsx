@@ -11,14 +11,14 @@ import {
 } from "@heroicons/react/24/solid";
 
 export default function DashboardPage() {
-  const totalUsers = 125; // จำนวนผู้ใช้งานทั้งหมด
-  const activeUsers = 78; // จำนวนผู้ใช้งานที่กำลัง active
+  const totalUsers = 125;
+  const activeUsers = 78;
   const usersPerPage = 10;
 
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState(""); // เก็บค่าค้นหา
 
-  // สร้างข้อมูลผู้ใช้หลัง client render
   useEffect(() => {
     const users = Array.from({ length: totalUsers }, (_, idx) => ({
       id: idx + 1,
@@ -30,9 +30,14 @@ export default function DashboardPage() {
     setAllUsers(users);
   }, []);
 
-  const totalPages = Math.ceil(allUsers.length / usersPerPage);
+  // กรองข้อมูลตาม searchTerm
+  const filteredUsers = allUsers.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
   const startIdx = (currentPage - 1) * usersPerPage;
-  const currentUsers = allUsers.slice(startIdx, startIdx + usersPerPage);
+  const currentUsers = filteredUsers.slice(startIdx, startIdx + usersPerPage);
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
@@ -118,36 +123,84 @@ export default function DashboardPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 border border-blue-100"
         >
-          <h2 className="text-blue-600 font-bold text-lg mb-4 flex items-center gap-2">
-            👥 รายการผู้ใช้
-          </h2>
+          {/* Header: Title + Search (ในบรรทัดเดียว) */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+            <h2 className="text-blue-600 font-bold text-lg flex items-center gap-2">
+              👥 รายการผู้ใช้
+            </h2>
+
+            <div className="relative w-full md:w-64">
+              <svg
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z"
+                />
+              </svg>
+
+              <input
+                type="text"
+                placeholder="ค้นหาผู้ใช้..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-12 pr-10 py-2.5 rounded-2xl border border-gray-200 bg-gradient-to-r from-white/90 to-gray-50/80 backdrop-blur-md 
+      shadow-[0_2px_6px_rgba(0,0,0,0.08)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.12)]
+      focus:ring-2 focus:ring-blue-400 focus:border-blue-300
+      transition-all duration-300 ease-in-out text-gray-800 placeholder-gray-400"
+              />
+
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+          
 
           <div className="space-y-4">
-            {currentUsers.map((user) => (
-              <motion.div
-                key={user.id}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-                className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                    <UserIcon className="w-6 h-6" />
+            {currentUsers.length > 0 ? (
+              currentUsers.map((user) => (
+                <motion.div
+                  key={user.id}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                      <UserIcon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800">{user.name}</p>
+                      <p className="text-sm text-gray-500">{user.department}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">{user.name}</p>
-                    <p className="text-sm text-gray-500">{user.department}</p>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-6">
-                  <span className="px-3 py-1 text-sm rounded-full bg-blue-50 text-blue-600 font-medium shadow-sm">
-                    Stress: {user.stress}
-                  </span>
-                  <p className="text-sm text-gray-500">{user.lastActive}</p>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="flex items-center gap-6">
+                    <span className="px-3 py-1 text-sm rounded-full bg-blue-50 text-blue-600 font-medium shadow-sm">
+                      Stress: {user.stress}
+                    </span>
+                    <p className="text-sm text-gray-500">{user.lastActive}</p>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-center">ไม่พบผู้ใช้ที่ค้นหา</p>
+            )}
           </div>
 
           {/* Pagination */}
@@ -160,7 +213,7 @@ export default function DashboardPage() {
               กลับ
             </button>
             <button
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || totalPages === 0}
               onClick={() => setCurrentPage((p) => p + 1)}
               className="px-4 py-2 rounded-lg bg-blue-100 text-blue-600 disabled:opacity-50"
             >
