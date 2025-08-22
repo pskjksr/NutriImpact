@@ -11,46 +11,35 @@ import {
 
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  CartesianGrid,
-  XAxis,
-  YAxis,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
   Tooltip,
+  Legend,
 } from "recharts";
 
-// ข้อมูลกราฟ
-const dataDaily = [
-  { name: "Mon", consumption: 8, nutrition: 6, stress: 12 },
-  { name: "Tue", consumption: 12, nutrition: 9, stress: 15 },
-  { name: "Wed", consumption: 10, nutrition: 7, stress: 10 },
-  { name: "Thu", consumption: 14, nutrition: 10, stress: 18 },
-  { name: "Fri", consumption: 11, nutrition: 8, stress: 14 },
-  { name: "Sat", consumption: 9, nutrition: 7, stress: 13 },
-  { name: "Sun", consumption: 7, nutrition: 6, stress: 11 },
+// 🔹 จัดข้อมูลใหม่ให้อยู่ object เดียวต่อ subject
+const data = [
+  { subject: "หวาน", Daily: 12, Weekly: 13, Monthly: 14 },
+  { subject: "ไขมัน", Daily: 9, Weekly: 11, Monthly: 12 },
+  { subject: "โซเดียม", Daily: 11, Weekly: 12, Monthly: 13 },
+  { subject: "ความเครียด (ST5)", Daily: 15, Weekly: 14, Monthly: 15 },
+  { subject: "ทักษะความรู้", Daily: 10, Weekly: 9, Monthly: 11 },
 ];
 
-const dataWeekly = [
-  { name: "Week 1", consumption: 50, nutrition: 40, stress: 60 },
-  { name: "Week 2", consumption: 45, nutrition: 38, stress: 55 },
-  { name: "Week 3", consumption: 48, nutrition: 42, stress: 58 },
-  { name: "Week 4", consumption: 52, nutrition: 44, stress: 62 },
-];
-
-const dataMonthly = [
-  { name: "Jan", consumption: 200, nutrition: 180, stress: 220 },
-  { name: "Feb", consumption: 190, nutrition: 170, stress: 210 },
-  { name: "Mar", consumption: 210, nutrition: 190, stress: 230 },
-];
+// 🔹 กำหนดสีให้แต่ละช่วงเวลา
+const COLORS: Record<string, string> = {
+  Daily: "#ef4444",   // แดง
+  Weekly: "#3b82f6",  // น้ำเงิน
+  Monthly: "#10b981", // เขียว
+};
 
 export default function GraphPage() {
-  const [range, setRange] = useState<"Daily" | "Weekly" | "Monthly">("Daily");
-
-  const getData = () => {
-    if (range === "Daily") return dataDaily;
-    if (range === "Weekly") return dataWeekly;
-    return dataMonthly;
-  };
+  const [range, setRange] = useState<"Daily" | "Weekly" | "Monthly" | "All">(
+    "Daily"
+  );
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
@@ -87,9 +76,11 @@ export default function GraphPage() {
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-auto">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold text-blue-600">📊 กราฟวิเคราะห์ข้อมูล</h1>
+          <h1 className="text-2xl font-bold text-blue-600">
+            📊 กราฟวิเคราะห์ข้อมูล
+          </h1>
           <div className="flex gap-2">
-            {["Daily", "Weekly", "Monthly"].map((item) => (
+            {["Daily", "Weekly", "Monthly", "All"].map((item) => (
               <motion.button
                 key={item}
                 whileTap={{ scale: 0.9 }}
@@ -106,47 +97,44 @@ export default function GraphPage() {
           </div>
         </div>
 
+        {/* Radar Chart */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full h-[calc(100vh-96px)] bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 border border-blue-100"
+          className="w-full h-[calc(100vh-96px)] bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 border border-blue-100 flex items-center justify-center"
         >
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={getData()}
-              margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-            >
-              <CartesianGrid stroke="#e5e7eb" strokeDasharray="5 5" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: "12px",
-                  border: "none",
-                  backgroundColor: "rgba(255,255,255,0.95)",
-                  boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-                }}
-              />
-              <Bar
-                dataKey="consumption"
-                fill="#3b82f6"
-                radius={[6, 6, 0, 0]}
-                name="พฤติกรรมการบริโภค"
-              />
-              <Bar
-                dataKey="nutrition"
-                fill="#10b981"
-                radius={[6, 6, 0, 0]}
-                name="โภชนาการ"
-              />
-              <Bar
-                dataKey="stress"
-                fill="#f97316"
-                radius={[6, 6, 0, 0]}
-                name="ความเครียด (ST5)"
-              />
-            </BarChart>
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
+              <PolarGrid />
+              <PolarAngleAxis dataKey="subject" />
+              <PolarRadiusAxis angle={30} domain={[0, 15]} />
+              <Tooltip />
+              <Legend />
+
+              {/* ถ้าเลือก All → แสดงทุกช่วงเวลา */}
+              {range === "All"
+                ? Object.keys(COLORS).map((key) => (
+                    <Radar
+                      key={key}
+                      name={key}
+                      dataKey={key}
+                      stroke={COLORS[key]}
+                      fill={COLORS[key]}
+                      fillOpacity={0.3}
+                    />
+                  ))
+                : // ถ้าเลือกช่วงเวลาเดียว → แสดงเฉพาะช่วงนั้น
+                  range && (
+                    <Radar
+                      name={range}
+                      dataKey={range}
+                      stroke={COLORS[range]}
+                      fill={COLORS[range]}
+                      fillOpacity={0.4}
+                    />
+                  )}
+            </RadarChart>
           </ResponsiveContainer>
         </motion.div>
       </main>
