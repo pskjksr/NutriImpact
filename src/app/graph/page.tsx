@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -11,17 +11,15 @@ import {
 
 import {
   ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
+  PieChart,
+  Pie,
+  Cell,
   Tooltip,
   Legend,
 } from "recharts";
 
-// 🔹 จัดข้อมูลใหม่ให้อยู่ object เดียวต่อ subject
-const data = [
+// 🔹 ข้อมูลต้นฉบับ
+const rawData = [
   { subject: "หวาน", Daily: 12, Weekly: 13, Monthly: 14 },
   { subject: "ไขมัน", Daily: 9, Weekly: 11, Monthly: 12 },
   { subject: "โซเดียม", Daily: 11, Weekly: 12, Monthly: 13 },
@@ -29,17 +27,23 @@ const data = [
   { subject: "ทักษะความรู้", Daily: 10, Weekly: 9, Monthly: 11 },
 ];
 
-// 🔹 กำหนดสีให้แต่ละช่วงเวลา
+// 🔹 กำหนดสีให้แต่ละ subject
 const COLORS: Record<string, string> = {
-  Daily: "#ef4444",   // แดง
-  Weekly: "#3b82f6",  // น้ำเงิน
-  Monthly: "#10b981", // เขียว
+  หวาน: "#ef4444", // แดง
+  ไขมัน: "#f59e0b", // ส้ม
+  โซเดียม: "#3b82f6", // น้ำเงิน
+  "ความเครียด (ST5)": "#10b981", // เขียว
+  ทักษะความรู้: "#8b5cf6", // ม่วง
 };
 
 export default function GraphPage() {
-  const [range, setRange] = useState<"Daily" | "Weekly" | "Monthly" | "All">(
-    "Daily"
-  );
+  // 🔹 รวมค่าทั้ง Daily + Weekly + Monthly
+  const combinedData = useMemo(() => {
+    return rawData.map((item) => ({
+      name: item.subject,
+      value: item.Daily + item.Weekly + item.Monthly,
+    }));
+  }, []);
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
@@ -77,27 +81,11 @@ export default function GraphPage() {
       <main className="flex-1 p-6 overflow-auto">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold text-blue-600">
-            📊 กราฟวิเคราะห์ข้อมูล
+            🥧 กราฟวงกลมแสดงข้อมูลรวม
           </h1>
-          <div className="flex gap-2">
-            {["Daily", "Weekly", "Monthly", "All"].map((item) => (
-              <motion.button
-                key={item}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setRange(item as any)}
-                className={`px-3 py-1.5 rounded-lg text-sm transition shadow-sm ${
-                  range === item
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "text-blue-600 bg-blue-50 hover:bg-blue-100"
-                }`}
-              >
-                {item}
-              </motion.button>
-            ))}
-          </div>
         </div>
 
-        {/* Radar Chart */}
+        {/* Pie Chart */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -105,36 +93,26 @@ export default function GraphPage() {
           className="w-full h-[calc(100vh-96px)] bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 border border-blue-100 flex items-center justify-center"
         >
           <ResponsiveContainer width="100%" height="100%">
-            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
-              <PolarGrid />
-              <PolarAngleAxis dataKey="subject" />
-              <PolarRadiusAxis angle={30} domain={[0, 15]} />
+            <PieChart>
+              <Pie
+                data={combinedData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius="80%"
+                label
+              >
+                {combinedData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[entry.name] || "#8884d8"}
+                  />
+                ))}
+              </Pie>
               <Tooltip />
               <Legend />
-
-              {/* ถ้าเลือก All → แสดงทุกช่วงเวลา */}
-              {range === "All"
-                ? Object.keys(COLORS).map((key) => (
-                    <Radar
-                      key={key}
-                      name={key}
-                      dataKey={key}
-                      stroke={COLORS[key]}
-                      fill={COLORS[key]}
-                      fillOpacity={0.3}
-                    />
-                  ))
-                : // ถ้าเลือกช่วงเวลาเดียว → แสดงเฉพาะช่วงนั้น
-                  range && (
-                    <Radar
-                      name={range}
-                      dataKey={range}
-                      stroke={COLORS[range]}
-                      fill={COLORS[range]}
-                      fillOpacity={0.4}
-                    />
-                  )}
-            </RadarChart>
+            </PieChart>
           </ResponsiveContainer>
         </motion.div>
       </main>
