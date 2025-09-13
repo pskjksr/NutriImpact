@@ -17,7 +17,7 @@ export default function DashboardPage() {
 
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState(""); // เก็บค่าค้นหา
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const users = Array.from({ length: totalUsers }, (_, idx) => ({
@@ -30,7 +30,6 @@ export default function DashboardPage() {
     setAllUsers(users);
   }, []);
 
-  // กรองข้อมูลตาม searchTerm
   const filteredUsers = allUsers.filter((user) =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -42,23 +41,21 @@ export default function DashboardPage() {
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-blue-600 text-white flex flex-col justify-between p-6 shadow-lg">
-        <div className="space-y-6">
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            Nutritional
-          </h1>
+      <aside className="w-64 bg-blue-600 text-white flex flex-col justify-between p-6 shadow-2xl rounded-r-3xl">
+        <div className="space-y-8">
+          <h1 className="text-3xl font-extrabold tracking-tight">Nutritional</h1>
           <nav className="space-y-3">
             <Link
               href="/Findevaluationresults"
-              className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
+              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 transition-all duration-300 shadow-md"
             >
-              <HomeIcon className="w-5 h-5" /> หน้าเเรก
+              <HomeIcon className="w-6 h-6" /> หน้าเเรก
             </Link>
             <Link
               href="/graph"
-              className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
+              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 transition-all duration-300 shadow-md"
             >
-              <ChartBarIcon className="w-5 h-5" /> กราฟวิเคราะห์ข้อมูล
+              <ChartBarIcon className="w-6 h-6" /> กราฟวิเคราะห์ข้อมูล
             </Link>
           </nav>
         </div>
@@ -66,23 +63,22 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-3">
           <Link
             href="/Login"
-            className="flex items-center gap-3 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-400 transition"
+            className="flex items-center gap-3 px-5 py-3 rounded-xl bg-red-500 hover:bg-red-400 transition-all duration-300 shadow-md"
           >
-            <ArrowRightOnRectangleIcon className="w-5 h-5" /> ออกจากระบบ
+            <ArrowRightOnRectangleIcon className="w-6 h-6" /> ออกจากระบบ
           </Link>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 overflow-y-auto space-y-8">
-        {/* Users Summary Cards */}
+      <main className="flex-1 p-8 overflow-y-auto space-y-8">
+        {/* Summary Cards */}
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Total Users */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 border border-blue-100 hover:shadow-xl transition w-full md:w-1/3"
+            className="bg-white/70 backdrop-blur-md shadow-2xl rounded-3xl p-6 border border-white/30 hover:shadow-3xl transition w-full md:w-1/3"
           >
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
@@ -95,12 +91,11 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          {/* Active Users */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 border border-green-100 hover:shadow-xl transition w-full md:w-1/3"
+            className="bg-white/70 backdrop-blur-md shadow-2xl rounded-3xl p-6 border border-white/30 hover:shadow-3xl transition w-full md:w-1/3"
           >
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 flex items-center justify-center rounded-full bg-green-100 text-green-600">
@@ -108,9 +103,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="text-gray-500 font-medium">ผู้ใช้งานตอนนี้</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {activeUsers}
-                </p>
+                <p className="text-2xl font-bold text-green-600">{activeUsers}</p>
               </div>
             </div>
           </motion.div>
@@ -121,9 +114,9 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 border border-blue-100"
+          className="bg-white/70 backdrop-blur-md shadow-2xl rounded-3xl p-6 border border-white/30"
         >
-          {/* Header: Title + Search (ในบรรทัดเดียว) */}
+          {/* Header: Title + Search */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
             <h2 className="text-blue-600 font-bold text-lg flex items-center gap-2">
               👥 รายการผู้ใช้
@@ -153,10 +146,10 @@ export default function DashboardPage() {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-12 pr-10 py-2.5 rounded-2xl border border-gray-200 bg-gradient-to-r from-white/90 to-gray-50/80 backdrop-blur-md 
-      shadow-[0_2px_6px_rgba(0,0,0,0.08)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.12)]
-      focus:ring-2 focus:ring-blue-400 focus:border-blue-300
-      transition-all duration-300 ease-in-out text-gray-800 placeholder-gray-400"
+                className="w-full pl-12 pr-10 py-2.5 rounded-2xl border border-white/30 bg-white/60 backdrop-blur-md 
+                shadow-[0_4px_12px_rgba(0,0,0,0.08)] focus:shadow-[0_6px_18px_rgba(0,0,0,0.12)]
+                focus:ring-2 focus:ring-blue-400 focus:border-blue-300
+                transition-all duration-300 ease-in-out text-gray-800 placeholder-gray-400"
               />
 
               {searchTerm && (
@@ -169,19 +162,19 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-          
 
+          {/* User Items */}
           <div className="space-y-4">
             {currentUsers.length > 0 ? (
               currentUsers.map((user) => (
                 <motion.div
                   key={user.id}
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(0,0,0,0.12)" }}
                   transition={{ duration: 0.2 }}
-                  className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md"
+                  className="flex items-center justify-between bg-white rounded-2xl p-4 shadow-md border border-gray-100 hover:shadow-xl"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                    <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
                       <UserIcon className="w-6 h-6" />
                     </div>
                     <div>
@@ -199,7 +192,7 @@ export default function DashboardPage() {
                 </motion.div>
               ))
             ) : (
-              <p className="text-gray-500 text-center">ไม่พบผู้ใช้ที่ค้นหา</p>
+              <p className="text-gray-500 text-center py-6">ไม่พบผู้ใช้ที่ค้นหา</p>
             )}
           </div>
 
@@ -208,14 +201,14 @@ export default function DashboardPage() {
             <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => p - 1)}
-              className="px-4 py-2 rounded-lg bg-blue-100 text-blue-600 disabled:opacity-50"
+              className="px-4 py-2 rounded-2xl bg-blue-100 text-blue-600 disabled:opacity-50 hover:bg-blue-200 transition"
             >
               กลับ
             </button>
             <button
               disabled={currentPage === totalPages || totalPages === 0}
               onClick={() => setCurrentPage((p) => p + 1)}
-              className="px-4 py-2 rounded-lg bg-blue-100 text-blue-600 disabled:opacity-50"
+              className="px-4 py-2 rounded-2xl bg-blue-100 text-blue-600 disabled:opacity-50 hover:bg-blue-200 transition"
             >
               ต่อไป
             </button>

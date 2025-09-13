@@ -48,21 +48,23 @@ export default function GraphPage() {
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-blue-600 text-white flex flex-col justify-between p-6 shadow-lg">
-        <div className="space-y-6">
-          <h1 className="text-2xl font-bold">Nutritional</h1>
+      <aside className="w-64 bg-blue-600 text-white flex flex-col justify-between p-6 shadow-2xl rounded-r-3xl">
+        <div className="space-y-8">
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            Nutritional
+          </h1>
           <nav className="space-y-3">
             <Link
               href="/Findevaluationresults"
-              className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
+              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 transition-all duration-300 shadow-md"
             >
-              <HomeIcon className="w-5 h-5" /> หน้าเเรก
+              <HomeIcon className="w-6 h-6" /> หน้าเเรก
             </Link>
             <Link
               href="/graph"
-              className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
+              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 transition-all duration-300 shadow-md"
             >
-              <ChartBarIcon className="w-5 h-5" /> กราฟวิเคราะห์ข้อมูล
+              <ChartBarIcon className="w-6 h-6" /> กราฟวิเคราะห์ข้อมูล
             </Link>
           </nav>
         </div>
@@ -70,9 +72,9 @@ export default function GraphPage() {
         <div className="flex flex-col gap-3">
           <Link
             href="/Login"
-            className="flex items-center gap-3 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-400 transition"
+            className="flex items-center gap-3 px-5 py-3 rounded-xl bg-red-500 hover:bg-red-400 transition-all duration-300 shadow-md"
           >
-            <ArrowRightOnRectangleIcon className="w-5 h-5" /> ออกจากระบบ
+            <ArrowRightOnRectangleIcon className="w-6 h-6" /> ออกจากระบบ
           </Link>
         </div>
       </aside>
@@ -90,7 +92,7 @@ export default function GraphPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full h-[calc(100vh-96px)] bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 border border-blue-100 flex items-center justify-center"
+          className="w-full h-[calc(100vh-96px)] bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex items-center justify-center" // ❌ เอา border ออก
         >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -102,14 +104,18 @@ export default function GraphPage() {
                 cy="50%"
                 outerRadius="80%"
                 label
+                isAnimationActive={true}
+                stroke="none" // ❌ ไม่ให้มีเส้นขอบดำ
               >
                 {combinedData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[entry.name] || "#8884d8"}
+                    stroke="none" // ❌ ปิดเส้นขอบของแต่ละ slice
                   />
                 ))}
               </Pie>
+
               <Tooltip />
               <Legend />
             </PieChart>
