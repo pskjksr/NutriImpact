@@ -22,3 +22,9 @@
 body {
   font-family: 'Prompt', sans-serif;
 }
+
+/* 🚫 ปิดกรอบสีดำเวลา click ที่ Pie chart */
+.recharts-pie-sector:focus,
+.recharts-sector:focus {
+  outline: none;
+}
