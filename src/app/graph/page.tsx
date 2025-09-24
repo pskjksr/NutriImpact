@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // ✅ ใช้ router
 import { motion } from "framer-motion";
 import {
   HomeIcon,
@@ -37,6 +38,8 @@ const COLORS: Record<string, string> = {
 };
 
 export default function GraphPage() {
+  const router = useRouter(); // ✅ ใช้ router
+
   // 🔹 รวมค่าทั้ง Daily + Weekly + Monthly
   const combinedData = useMemo(() => {
     return rawData.map((item) => ({
@@ -92,7 +95,7 @@ export default function GraphPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full h-[calc(100vh-96px)] bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex items-center justify-center" // ❌ เอา border ออก
+          className="w-full h-[calc(100vh-96px)] bg-white/80 backdrop-blur-lg shadow-lg rounded-2xl p-6 flex items-center justify-center"
         >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -105,13 +108,14 @@ export default function GraphPage() {
                 outerRadius="80%"
                 label
                 isAnimationActive={true}
-                stroke="none" // ❌ ไม่ให้มีเส้นขอบดำ
+                stroke="none"
               >
                 {combinedData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[entry.name] || "#8884d8"}
-                    stroke="none" // ❌ ปิดเส้นขอบของแต่ละ slice
+                    stroke="none"
+                    className="cursor-pointer hover:opacity-80 transition"
                   />
                 ))}
               </Pie>
