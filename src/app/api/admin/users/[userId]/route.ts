@@ -1,4 +1,4 @@
-// app/api/admin/users/[userId]/route.ts
+
 import { NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabaseAdmin'
 

@@ -1,8 +1,9 @@
-
 "use client"
 
 import { JSX, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import { useSearchParams } from 'next/navigation'
+
 
 type Summary = {
     sessionId: string
@@ -30,8 +31,9 @@ type ApiResp = {
     answers: Record<string, any>
 }
 
-export default async function UserDetailPage({ params }: { params: Promise<{ userId : string }> }) {
-    const { userId } = await params
+export default function UserDetailPage() {
+    const searchParams = useSearchParams()
+    const userId = searchParams.get('user_id')
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [summary, setSummary] = useState<Summary | null>(null)
@@ -44,7 +46,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ use
 
             ; (async () => {
                 try {
-                    const res = await fetch(`/api/admin/users/${encodeURIComponent(await userId)}`, { cache: "no-store" })
+                    const res = await fetch(`/api/admin/users/${encodeURIComponent(userId ?? "")}`, { cache: "no-store" })
                     const ct = res.headers.get("content-type") || ""
                     const raw = await res.text()
                     if (!ct.includes("application/json")) {

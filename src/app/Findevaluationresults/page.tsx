@@ -190,7 +190,7 @@ export default function DashboardPage() {
           )}
 
           {!loading && !error && items.map((u) => (
-            <Link key={u.userId} href={`/admin/users/${u.userId}`} prefetch={false} className="block">
+            <Link key={u.userId} href={{pathname:`/admin/users`,query:{user_id:u.userId}}} className="block">
               <motion.div
                 whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(0,0,0,0.12)" }}
                 transition={{ duration: 0.2 }}
