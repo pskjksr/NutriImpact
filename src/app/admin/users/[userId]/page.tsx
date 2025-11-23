@@ -1,4 +1,4 @@
-// app/admin/users/[userId]/page.tsx
+
 "use client"
 
 import { JSX, useEffect, useMemo, useState } from "react"
@@ -30,8 +30,8 @@ type ApiResp = {
     answers: Record<string, any>
 }
 
-export default function UserDetailPage({ params }: { params: { userId: string } }) {
-    const { userId } = params
+export default async function UserDetailPage({ params }: { params: { userId: Promise<string> } }) {
+    const { userId } = await params
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [summary, setSummary] = useState<Summary | null>(null)
@@ -44,7 +44,7 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
 
             ; (async () => {
                 try {
-                    const res = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`, { cache: "no-store" })
+                    const res = await fetch(`/api/admin/users/${encodeURIComponent(await userId)}`, { cache: "no-store" })
                     const ct = res.headers.get("content-type") || ""
                     const raw = await res.text()
                     if (!ct.includes("application/json")) {
