@@ -30,7 +30,7 @@ type ApiResp = {
     answers: Record<string, any>
 }
 
-export default async function UserDetailPage({ params }: { params: { userId: Promise<string> } }) {
+export default async function UserDetailPage({ params }: { params: Promise<{ userId : string }> }) {
     const { userId } = await params
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
