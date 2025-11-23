@@ -3,6 +3,7 @@
 import { JSX, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
 
 type Summary = {
@@ -31,7 +32,7 @@ type ApiResp = {
     answers: Record<string, any>
 }
 
-export default function UserDetailPage() {
+function UserDetail() {
     const searchParams = useSearchParams()
     const userId = searchParams.get('user_id')
     const [loading, setLoading] = useState(true)
@@ -194,6 +195,14 @@ export default function UserDetailPage() {
                 </div>
             )}
         </div>
+    )
+}
+
+export default function UserDetailPage() {
+    return (
+        <Suspense>
+            <UserDetail />
+        </Suspense>
     )
 }
 
