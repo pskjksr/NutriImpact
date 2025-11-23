@@ -5,6 +5,8 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { supabaseBrowser } from '@/lib/supabase/browser'
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
@@ -26,32 +28,31 @@ export default function LoginPage() {
     }
   }, []);
 
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const newErrors: typeof errors = {};
+  const supabase = supabaseBrowser()
 
-    if (!email.trim()) newErrors.email = "กรุณากรอกอีเมลหรือเบอร์โทรศัพท์";
-    if (!password.trim()) newErrors.password = "กรุณากรอกรหัสผ่าน";
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
 
-    setErrors(newErrors);
+    const newErrors: typeof errors = {}
+    if (!email.trim() || !email.includes('@')) newErrors.email = 'กรุณากรอกอีเมลให้ถูกต้อง'
+    if (!password.trim()) newErrors.password = 'กรุณากรอกรหัสผ่าน'
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length) return
 
-    if (Object.keys(newErrors).length === 0) {
-      if (email === "admin@example.com" && password === "123456") {
-        if (remember) {
-          localStorage.setItem("savedEmail", email);
-          localStorage.setItem("savedPassword", password);
-          localStorage.setItem("savedRemember", "true");
-        } else {
-          localStorage.removeItem("savedEmail");
-          localStorage.removeItem("savedPassword");
-          localStorage.removeItem("savedRemember");
-        }
-        router.push("/Findevaluationresults");
-      } else {
-        setErrors({ password: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" });
-      }
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
+
+      // จำฉันไว้: เก็บแค่ email ก็พอ (ไม่เก็บ password)
+      if (remember) localStorage.setItem('savedEmail', email)
+      else localStorage.removeItem('savedEmail')
+
+      // เข้าสู่ระบบสำเร็จ → ไปหน้าหลักของแอดมิน
+      router.push('/Findevaluationresults')
+    } catch (err: any) {
+      setErrors({ password: err?.message ?? 'เข้าสู่ระบบไม่สำเร็จ' })
     }
-  };
+  }
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },

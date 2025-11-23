@@ -1,53 +1,133 @@
 "use client";
-import { useState, ChangeEvent, FormEvent } from "react";
+
+import { useState, useMemo, ChangeEvent, FormEvent } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { FaSignInAlt } from "react-icons/fa";
+import { supabaseBrowser } from "@/lib/supabase/browser";
 
 export default function SignupForm() {
   const router = useRouter();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirm, setShowConfirm] = useState<boolean>(false);
+  const supabase = useMemo(() => supabaseBrowser(), []);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
     confirm?: string;
     general?: string;
   }>({});
-  const [loading, setLoading] = useState(false);
 
-  const handleSignup = (e: FormEvent<HTMLFormElement>) => {
+  // ความแข็งแรงรหัสผ่านแบบเบสิค
+  const validatePassword = (pwd: string) => {
+    if (pwd.length < 8) return "รหัสผ่านต้องอย่างน้อย 8 ตัวอักษร";
+    if (!/[A-Za-z]/.test(pwd) || !/[0-9]/.test(pwd))
+      return "ต้องมีตัวอักษรและตัวเลขอย่างน้อยอย่างละ 1";
+    return undefined;
+  };
+
+  const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newErrors: typeof errors = {};
+    const nextErrors: typeof errors = {};
 
-    if (!email.trim()) newErrors.email = "กรุณากรอกอีเมลหรือเบอร์โทรศัพท์";
-    if (!password.trim()) newErrors.password = "กรุณากรอกรหัสผ่าน";
-    if (!confirmPassword.trim()) {
-      newErrors.confirm = "กรุณากรอกรหัสผ่านอีกครั้ง";
-    } else if (password !== confirmPassword) {
-      newErrors.confirm = "รหัสผ่านไม่ตรงกัน";
-    }
+    if (!email.trim()) nextErrors.email = "กรุณากรอกอีเมล";
+    const pwdErr = validatePassword(password);
+    if (!password.trim()) nextErrors.password = "กรุณากรอกรหัสผ่าน";
+    else if (pwdErr) nextErrors.password = pwdErr;
+    if (!confirmPassword.trim()) nextErrors.confirm = "กรุณากรอกรหัสผ่านอีกครั้ง";
+    else if (password !== confirmPassword) nextErrors.confirm = "รหัสผ่านไม่ตรงกัน";
 
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (email === "admin@example.com" && password === "123456") {
-        alert("สมัครสำเร็จ! คุณสามารถเข้าสู่ระบบได้");
-        router.push("/Login");
-      } else {
-        setErrors({
-          general: "สำหรับตัวอย่าง ให้ใช้ admin@example.com / 123456",
-        });
+    try {
+      setLoading(true);
+      setErrors({});
+      const redirectTo =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/Login`
+          : undefined;
+
+      // สมัครสมาชิก
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectTo, // ลิงก์ในอีเมลจะเด้งกลับมาหน้านี้
+          // data: { plan: "free" } // (ถ้าจะเก็บ user_metadata)
+        },
+      });
+
+      if (error) {
+        // เคสซ้ำ/อื่นๆ
+        // error.message อาจเป็น "User already registered"
+        setErrors({ general: error.message || "สมัครสมาชิกไม่สำเร็จ" });
+        return;
       }
-    }, 1000);
+
+      // ถ้าเปิด Confirm Email -> session จะเป็น null
+      if (!data.session) {
+        setEmailSent(true);
+        return;
+      }
+
+      // ถ้าปิด Confirm Email -> ล็อกอินได้เลย
+      router.replace("/Login");
+    } catch (err: any) {
+      setErrors({ general: err?.message ?? "เกิดข้อผิดพลาด" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendEmail = async () => {
+    try {
+      setLoading(true);
+      const redirectTo =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/Login`
+          : undefined;
+
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: redirectTo },
+      });
+      if (error) setErrors({ general: error.message });
+      else alert("ส่งอีเมลยืนยันใหม่แล้ว เช็คกล่องจดหมายได้เลย");
+    } catch (e: any) {
+      setErrors({ general: e?.message ?? "ส่งอีเมลไม่สำเร็จ" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOAuth = async (provider: "google") => {
+    try {
+      setLoading(true);
+      const redirectTo =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/Login`
+          : undefined;
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo },
+      });
+      if (error) setErrors({ general: error.message });
+      // จะถูกพาไปรอบ OAuth แล้วกลับมาเอง
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fadeInUp = {
@@ -67,11 +147,7 @@ export default function SignupForm() {
         animate="visible"
         className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-xl w-full max-w-md p-10 border border-gray-200 hover:shadow-2xl transition-all duration-500"
       >
-        <motion.div
-          variants={fadeInUp}
-          custom={0}
-          className="flex justify-center mb-8"
-        >
+        <motion.div variants={fadeInUp} custom={0} className="flex justify-center mb-8">
           <h2 className="text-4xl font-extrabold text-gray-900 text-center">
             สร้างบัญชี
             <span className="block w-24 mx-auto mt-3 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-pulse"></span>
@@ -81,19 +157,14 @@ export default function SignupForm() {
         {/* Email */}
         <motion.div variants={fadeInUp} custom={1} className="mb-4">
           <input
-            type="text"
-            placeholder="อีเมลหรือโทรศัพท์"
+            type="email"
+            placeholder="อีเมล"
             value={email}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setEmail(e.target.value)
-            }
-            className={`w-full pr-12 px-5 py-4 rounded-2xl bg-white/90 border ${
-              errors.email ? "border-red-500" : "border-gray-200"
-            } focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm placeholder:text-gray-500 transition-all duration-300 hover:shadow-md focus:shadow-xl h-12`}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+            className={`w-full pr-12 px-5 py-4 rounded-2xl bg-white/90 border ${errors.email ? "border-red-500" : "border-gray-200"
+              } focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm placeholder:text-gray-500 transition-all duration-300 hover:shadow-md focus:shadow-xl h-12`}
           />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
         </motion.div>
 
         {/* Password */}
@@ -103,34 +174,22 @@ export default function SignupForm() {
               type={showPassword ? "text" : "password"}
               placeholder="รหัสผ่าน"
               value={password}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.target.value)
-              }
-              className={`w-full pr-12 px-5 py-4 rounded-2xl bg-white/90 border ${
-                errors.password ? "border-red-500" : "border-gray-200"
-              } focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm placeholder:text-gray-500 transition duration-300 hover:shadow-md focus:shadow-xl h-12`}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              className={`w-full pr-12 px-5 py-4 rounded-2xl bg-white/90 border ${errors.password ? "border-red-500" : "border-gray-200"
+                } focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm placeholder:text-gray-500 transition duration-300 hover:shadow-md focus:shadow-xl h-12`}
             />
-
             <button
               type="button"
               onClick={(e) => {
                 e.preventDefault();
-                setShowPassword((prev) => !prev);
+                setShowPassword((p) => !p);
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition duration-300"
             >
-              {showPassword ? (
-                <EyeIcon className="w-5 h-5" />
-              ) : (
-                <EyeSlashIcon className="w-5 h-5" />
-              )}
+              {showPassword ? <EyeIcon className="w-5 h-5" /> : <EyeSlashIcon className="w-5 h-5" />}
             </button>
           </div>
-          {errors.password && (
-            <p className="text-red-500 text-sm mt-1 absolute">
-              {errors.password}
-            </p>
-          )}
+          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
         </motion.div>
 
         {/* Confirm Password */}
@@ -140,33 +199,25 @@ export default function SignupForm() {
               type={showConfirm ? "text" : "password"}
               placeholder="ป้อนรหัสผ่านอีกครั้ง"
               value={confirmPassword}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setConfirmPassword(e.target.value)
-              }
-              className={`w-full pr-12 px-5 py-4 rounded-2xl bg-white/90 border ${
-                errors.confirm ? "border-red-500" : "border-gray-200"
-              } focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm placeholder:text-gray-500 transition duration-300 hover:shadow-md focus:shadow-xl h-12`}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
+              className={`w-full pr-12 px-5 py-4 rounded-2xl bg-white/90 border ${errors.confirm ? "border-red-500" : "border-gray-200"
+                } focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm placeholder:text-gray-500 transition duration-300 hover:shadow-md focus:shadow-xl h-12`}
             />
             <button
               type="button"
               onClick={(e) => {
                 e.preventDefault();
-                setShowConfirm((prev) => !prev);
+                setShowConfirm((p) => !p);
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition duration-300"
             >
-              {showConfirm ? (
-                <EyeIcon className="w-5 h-5" />
-              ) : (
-                <EyeSlashIcon className="w-5 h-5" />
-              )}
+              {showConfirm ? <EyeIcon className="w-5 h-5" /> : <EyeSlashIcon className="w-5 h-5" />}
             </button>
           </div>
-          {errors.confirm && (
-            <p className="text-red-500 text-sm mt-1">{errors.confirm}</p>
-          )}
+          {errors.confirm && <p className="text-red-500 text-sm mt-1">{errors.confirm}</p>}
         </motion.div>
 
+        {/* CTA */}
         <motion.button
           variants={fadeInUp}
           custom={4}
@@ -174,15 +225,41 @@ export default function SignupForm() {
           whileTap={{ scale: 0.97 }}
           type="submit"
           disabled={loading}
-          className="w-full py-4 mb-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-blue-400/60 transition duration-300 disabled:opacity-60"
+          className="w-full py-4 mb-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-blue-400/60 transition duration-300 disabled:opacity-60"
         >
           {loading ? "กำลังสมัคร..." : "สร้างบัญชี"}
         </motion.button>
 
+        {/* OAuth (ทางเลือก) */}
+        <motion.button
+          variants={fadeInUp}
+          custom={4.2}
+          type="button"
+          disabled={loading}
+          onClick={() => handleOAuth("google")}
+          className="w-full py-3 mb-4 bg-white border border-gray-300 rounded-2xl text-gray-800 hover:bg-gray-50 transition disabled:opacity-60"
+        >
+          สมัครด้วย Google
+        </motion.button>
+
+        {/* แจ้งเตือนทั่วไป */}
         {errors.general && (
-          <p className="text-red-500 text-center text-sm mb-4">
-            {errors.general}
-          </p>
+          <p className="text-red-500 text-center text-sm mb-4">{errors.general}</p>
+        )}
+
+        {/* แจ้งส่งอีเมลยืนยัน + ปุ่ม resend */}
+        {emailSent && (
+          <div className="mb-4 rounded-xl border bg-green-50 text-blue-500 p-3">
+            เราส่งลิงก์ยืนยันไปที่ <b>{email}</b> แล้ว เช็คอีเมลได้เลย
+            <button
+              type="button"
+              onClick={handleResendEmail}
+              className="ml-2 underline underline-offset-2 hover:opacity-80"
+              disabled={loading}
+            >
+              ส่งอีกครั้ง
+            </button>
+          </div>
         )}
 
         <motion.p

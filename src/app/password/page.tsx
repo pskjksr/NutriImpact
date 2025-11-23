@@ -5,6 +5,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { supabaseBrowser } from '@/lib/supabase/browser'
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -12,20 +13,30 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
+  const supabase = supabaseBrowser()
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (password.length < 8) {
-      alert("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร");
-      return;
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    if (password.length < 8) return alert('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร')
+    if (password !== confirm) return alert('รหัสผ่านไม่ตรงกัน')
+
+    const { data, error } = await supabase.auth.updateUser({ password })
+    if (error) {
+      // ตรวจสอบข้อความจาก Supabase ว่าเป็นกรณี Email not confirmed
+      const msg = String(error.message || '').toLowerCase()
+      if (msg.includes('email not confirmed') || msg.includes('email_confirm')) {
+        alert('อีเมลยังไม่ได้ยืนยัน กรุณายืนยันอีเมลก่อนดำเนินการ')
+        router.push('/OTP') // หรือหน้าที่ใช้ resend confirmation
+        return
+      }
+
+      alert(error.message)
+      return
     }
-    if (password !== confirm) {
-      alert("รหัสผ่านไม่ตรงกัน");
-      return;
-    }
-    console.log("✅ New password:", password);
-    router.push("/success");
-  };
+
+    // ตั้งรหัสผ่านใหม่เสร็จ
+    router.push('/success')
+  }
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
@@ -123,20 +134,18 @@ export default function ResetPasswordPage() {
         </motion.div>
 
         {/* Submit */}
-        <Link href="/finishotp">
-          <motion.button
-            variants={fadeInUp}
-            custom={3}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            type="submit"
-            className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-blue-400/60 transition duration-300"
-          >
-            รีเซ็ตรหัสผ่าน
-          </motion.button>
-        </Link>
+        <motion.button
+          variants={fadeInUp}
+          custom={3}
+          initial="hidden"
+          animate="visible"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.97 }}
+          type="submit"
+          className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-blue-400/60 transition duration-300"
+        >
+          รีเซ็ตรหัสผ่าน
+        </motion.button>
       </motion.form>
     </div>
   );
