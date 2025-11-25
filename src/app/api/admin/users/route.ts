@@ -49,7 +49,8 @@ export async function GET(req: Request) {
                 startedAt: s.started_at,
                 finishedAt: s.submitted_at ?? s.completed_at ?? null,
                 stress: sumStress(a),                          // ✅ รวม st5_q1..st5_q5
-                department: a.current_department ?? null
+                department: a.current_department ?? null,
+                yearLevel: a.year_level ?? null
             }
         })
 

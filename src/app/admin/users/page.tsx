@@ -115,11 +115,44 @@ function UserDetail() {
             height_cm: "ส่วนสูง (ซม.)", weight_kg: "น้ำหนัก (กก.)",
             surgery_history: "ประวัติการผ่าตัด", surgery_detail: "รายละเอียดการผ่าตัด",
             k42: "ดัชนีมวลกาย (แปลผล)", k43: "ความดันโลหิต (แปลผล)",
-            st5_q1: "ST-5 ข้อ 1", st5_q2: "ST-5 ข้อ 2", st5_q3: "ST-5 ข้อ 3", st5_q4: "ST-5 ข้อ 4", st5_q5: "ST-5 ข้อ 5",
+
+            // ST-5
+            st5_q1: 'มีปัญหาการนอน นอนไม่หลับหรือนอนมาก',
+            st5_q2: 'มีสมาธิลดลง',
+            st5_q3: 'หงุดหงิด / กระวนกระวาย / ว้าวุ่นใจ',
+            st5_q4: 'รู้สึกเบื่อ เซ็ง',
+            st5_q5: 'ไม่อยากพบปะผู้คน',
             st5_total: "คะแนนเครียดรวม",
-            diet31_q1: "อาหาร 3.1–1", diet31_q2: "อาหาร 3.1–2", diet31_q3: "อาหาร 3.1–3", diet31_q4: "อาหาร 3.1–4", diet31_q5: "อาหาร 3.1–5",
-            diet32_q1: "อาหาร 3.2–1", diet32_q2: "อาหาร 3.2–2", diet32_q3: "อาหาร 3.2–3", diet32_q4: "อาหาร 3.2–4", diet32_q5: "อาหาร 3.2–5",
-            diet33_q1: "อาหาร 3.3–1", diet33_q2: "อาหาร 3.3–2", diet33_q3: "อาหาร 3.3–3", diet33_q4: "อาหาร 3.3–4", diet33_q5: "อาหาร 3.3–5",
+
+            // Diet 3.1
+            diet31_q1: 'ดื่มน้ำเปล่า',
+            diet31_q2: 'ดื่มน้ำอัดลม กาแฟ ชา น้ำหวาน นมเปรี้ยว',
+            diet31_q3: 'ดื่มน้ำผักผลไม้สำเร็จรูป',
+            diet31_q4: 'กินไอศกรีม เบเกอรี่ หรือขนมหวานไทย',
+            diet31_q5: 'เติมน้ำตาลเพิ่มลงในอาหาร',
+
+            // Diet 3.2
+            diet32_q1: 'เลือกกินเนื้อสัตว์ไม่ติดมัน ไม่ติดหนัง',
+            diet32_q2: 'กินอาหารทอด อาหารฟาสต์ฟู้ด อาหารผัดน้ำมัน',
+            diet32_q3: 'กินอาหารจานเดียว ไขมันสูง หรืออาหารประเภทแกงกะทิ',
+            diet32_q4: 'ดื่มเครื่องดื่มที่ผสมนมข้นหวาน ครีมเทียม วิปปิ้งครีม',
+            diet32_q5: 'ซดน้ำผัก/น้ำแกง หรือ ราดน้ำผักน้ำแกงลงในข้าว',
+
+            // Diet 3.3
+            diet33_q1: 'ชิมอาหารก่อนปรุง น้ำปลา ซีอิ๊ว ซอส',
+            diet33_q2: 'กินอาหารที่มีสมุนไพรหรือเครื่องเทศ เป็นส่วนประกอบ',
+            diet33_q3: 'กินเนื้อสัตว์แปรรูป ไส้กรอก หมูยอ แฮม ปลาทูเค็ม กุ้งแห้ง ปลาร้า',
+            diet33_q4: 'กินอาหารสำเร็จรูปหรืออาหารแช่แข็ง',
+            diet33_q5: 'กินผักผลไม้ดองหรือผลไม้แช่อิ่ม',
+
+            // K41
+            k41_q1: 'ไม่ทานอาหารขยะ',
+            k41_q2: 'อ่านฉลากอาหาร',
+            k41_q3: 'ทานอาหารเสริม',
+            k41_q4: 'ติดตามการกินของตนเองและปริมาณอาหารที่กิน',
+            k41_q5: 'ชั่งน้ำหนักและติดตามเป็นประจำ',
+            k41_q6: 'กินตลอดทั้งวัน',
+
             bmi: "BMI", bsa: "BSA", bmi_status: "BMI (แปลผล)", bsa_status: "BSA (แปลผล)",
         }
         return map[k] ?? k
@@ -159,11 +192,9 @@ function UserDetail() {
                     <div className="bg-white rounded-2xl p-6 shadow">
                         <h2 className="text-xl font-bold mb-3">รายละเอียดแบบฟอร์ม</h2>
                         <div className="grid md:grid-cols-2 gap-2 text-sm text-gray-700">
-                            <div>Session: {summary.sessionId}</div>
                             <div>แบบฟอร์ม: {summary.formSlug ?? "—"} (v{summary.version ?? "—"})</div>
                             <div>เริ่ม: {summary.startedAt ? new Date(summary.startedAt).toLocaleString() : "—"}</div>
                             <div>เสร็จ: {summary.finishedAt ? new Date(summary.finishedAt).toLocaleString() : "—"}</div>
-                            <div>สถานะ: {summary.status ?? "—"} · {summary.progress ?? 0}%</div>
                             <div>เพศ/ชั้นปี/แผนก: {summary.gender ?? "—"} / {summary.yearLevel ?? "—"} / {summary.department ?? "—"}</div>
                             <div>BMI/BSA: {summary.bmi ?? "—"} ({summary.bmiStatus ?? "—"}) / {summary.bsa ?? "—"} ({summary.bsaStatus ?? "—"})</div>
                             <div>คะแนนเครียดรวม: <b>{summary.stress ?? stressTotal}</b></div>

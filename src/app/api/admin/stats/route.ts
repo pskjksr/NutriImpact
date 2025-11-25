@@ -1,64 +1,74 @@
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getAdminClient } from '@/lib/supabaseAdmin'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,   // SERVER ONLY
-    { auth: { persistSession: false } }
-)
+// Helper to calculate ST5 score
+const calculateStress = (answers: any) => {
+    const keys = ['st5_q1', 'st5_q2', 'st5_q3', 'st5_q4', 'st5_q5'] as const
+    return keys.reduce((total, key) => {
+        const val = parseInt(String(answers?.[key] ?? 0), 10)
+        return total + (Number.isFinite(val) ? val : 0)
+    }, 0)
+}
 
-export async function GET() {
-    // ใช้ view ที่รวม session ล่าสุดของแต่ละ user
-    const { data: latest, error } = await supabaseAdmin
-        .from('admin_user_latest')
-        .select('last_session_id')
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+// Helper to determine stress level
+const getStressLevel = (score: number) => {
+    if (score <= 4) return 'Low'
+    if (score <= 7) return 'Moderate'
+    if (score <= 9) return 'High'
+    return 'Severe'
+}
 
-    const sessionIds = (latest ?? [])
-        .map(r => r.last_session_id)
-        .filter(Boolean) as string[]
+export async function GET(req: Request) {
+    try {
+        const supabase = getAdminClient()
 
-    // ไม่มีข้อมูล ก็ส่งศูนย์ทั้ง 4 หมวด
-    if (sessionIds.length === 0) {
-        return NextResponse.json({
-            items: [
-                { name: 'หวาน', value: 0 },
-                { name: 'ไขมัน', value: 0 },
-                { name: 'โซเดียม', value: 0 },
-                { name: 'ความเครียด (ST5)', value: 0 },
-                // เว้น "ทักษะความรู้" ไว้สำหรับอนาคต
-            ]
+        // Fetch all completed sessions with answers
+        const { data, error } = await supabase
+            .from('survey_sessions')
+            .select('id, answers')
+            .not('answers', 'is', null)
+
+        if (error) throw error
+
+        const items = (data ?? []).map((session: any) => {
+            const answers = session.answers ?? {}
+            const score = calculateStress(answers)
+            const level = getStressLevel(score)
+            const yearLevel = answers.year_level ? String(answers.year_level) : 'Unknown'
+
+            return {
+                id: session.id,
+                score,
+                level,
+                yearLevel
+            }
         })
+
+        // Calculate distribution
+        const distribution = {
+            Low: 0,
+            Moderate: 0,
+            High: 0,
+            Severe: 0
+        }
+
+        items.forEach(item => {
+            if (item.level in distribution) {
+                distribution[item.level as keyof typeof distribution]++
+            }
+        })
+
+        return NextResponse.json({
+            total: items.length,
+            distribution,
+            items // Sending all items to client for flexible filtering
+        })
+
+    } catch (e: any) {
+        return NextResponse.json({ error: String(e?.message || e) }, { status: 500 })
     }
-
-    // 1) หวาน/ไขมัน/โซเดียม
-    const { data: s3, error: e3 } = await supabaseAdmin
-        .from('survey_section3')
-        .select('sugar_score,fat_score,sodium_score')
-        .in('session_id', sessionIds)
-    if (e3) return NextResponse.json({ error: e3.message }, { status: 500 })
-
-    const sugarSum = (s3 ?? []).reduce((a, r) => a + (r.sugar_score ?? 0), 0)
-    const fatSum = (s3 ?? []).reduce((a, r) => a + (r.fat_score ?? 0), 0)
-    const sodiumSum = (s3 ?? []).reduce((a, r) => a + (r.sodium_score ?? 0), 0)
-
-    // 2) ความเครียด (ST5)
-    const { data: s5, error: e5 } = await supabaseAdmin
-        .from('survey_section5')
-        .select('total_score')
-        .in('session_id', sessionIds)
-    if (e5) return NextResponse.json({ error: e5.message }, { status: 500 })
-
-    const stressSum = (s5 ?? []).reduce((a, r) => a + (r.total_score ?? 0), 0)
-
-    // ส่งเฉพาะ 4 หมวด
-    return NextResponse.json({
-        items: [
-            { name: 'หวาน', value: sugarSum },
-            { name: 'ไขมัน', value: fatSum },
-            { name: 'โซเดียม', value: sodiumSum },
-            { name: 'ความเครียด (ST5)', value: stressSum },
-            // { name: 'ทักษะความรู้', value: 0 }, // <- ไว้เปิดใช้ในอนาคต
-        ]
-    })
 }

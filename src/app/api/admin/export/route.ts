@@ -111,6 +111,7 @@ const sum = (arr: Array<number | null>) =>
     arr.reduce<number>((t, x) => t + (x ?? 0), 0)
 
 // ---------- Excel helper ----------
+// ---------- Excel helper ----------
 function addSheet(wb: ExcelJS.Workbook, name: string, rows: any[]) {
     const ws = wb.addWorksheet(name)
     if (!rows || rows.length === 0) {
@@ -131,6 +132,15 @@ function addSheet(wb: ExcelJS.Workbook, name: string, rows: any[]) {
         col.width = Math.min(60, max + 2)
     })
     return ws
+}
+
+function mapToCode(v: string | null): string | null {
+    if (v === null) return null
+    const s = v.trim()
+    if (s === 'ไม่มี') return '0'
+    if (s === 'มี') return '1'
+    if (s.startsWith('อื่น')) return s.replace(/^อื่นๆ?/, 'Others')
+    return s
 }
 
 // ---------- Handler ----------
@@ -180,9 +190,7 @@ export async function GET(req: Request) {
 
                 // ค่าคำนวณ
                 BMI: a?._computed?.bmi ?? null,
-                BMI_Status: a?._computed?.bmi_status ?? null,
                 BSA: a?._computed?.bsa ?? null,
-                BSA_Status: a?._computed?.bsa_status ?? null,
 
                 // สุขภาพ & ผ่าตัด
                 K41_Q1: mapTri(a.k41_q1),
@@ -193,12 +201,12 @@ export async function GET(req: Request) {
                 K41_Q6: mapTri(a.k41_q6),
                 Self_weight_status: mapWeightStatusEn(a.k42 ?? a.self_weight_status),
                 Daily_functioning: mapDailyFunctionEn(a.k43 ?? a.daily_functioning),
-                Surgery_history: a.surgery_history ?? null,
-                Surgery_detail: a.surgery_detail ?? null,
+                Surgery_history: mapToCode(a.surgery_history ?? null),
+                Surgery_detail: mapToCode(a.surgery_detail ?? null),
 
                 // 🔥 ใหม่: ยาที่ใช้ประจำ/โรคประจำตัว — แปลง list → text (ไม่มี " , [ ])
-                Regular_Medications: listToText(a.regular_medications),
-                Underlying_Diseases: listToText(a.underlying_diseases),
+                Regular_Medications: mapToCode(listToText(a.regular_medications)),
+                Underlying_Diseases: mapToCode(listToText(a.underlying_diseases)),
 
                 // พฤติกรรมการกิน (raw)
                 // 🔥 ใหม่: คะแนนที่แปลงแล้ว + total

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { UserIcon, HomeIcon, ChartBarIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/solid"
+import LogoutButton from "@/components/LogoutButton"
+
 
 type AdminUser = {
   userId: string
@@ -15,18 +17,18 @@ type AdminUser = {
   finishedAt: string | null
   stress: number | null
   department: string | null
+  yearLevel: string | null
 }
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
   const size = 10
 
   const [items, setItems] = useState<AdminUser[]>([])
-  const [totalUsers, setTotalUsers] = useState(0)   // ทั้งระบบ
   const [count, setCount] = useState(0)             // จำนวนผลลัพธ์ตามตัวกรองปัจจุบัน
+  const [search, setSearch] = useState('')          // คำค้นหา
 
   useEffect(() => {
     let cancelled = false
@@ -34,7 +36,7 @@ export default function DashboardPage() {
     setError(null)
       ; (async () => {
         try {
-          const res = await fetch(`/api/admin/users?q=${encodeURIComponent(search)}&page=${page}&size=${size}`, { cache: 'no-store' })
+          const res = await fetch(`/api/admin/users?q=&page=${page}&size=${size}`, { cache: 'no-store' })
           const contentType = res.headers.get('content-type') || ''
           const raw = await res.text()
           if (!contentType.includes('application/json')) {
@@ -52,12 +54,12 @@ export default function DashboardPage() {
             startedAt: it.startedAt ?? null,                 // ← เดิมใช้ lastStartedAt
             finishedAt: it.finishedAt ?? null,                // ← เดิมใช้ lastFinishedAt
             stress: typeof it.stress === 'number' ? it.stress : null,  // ← ผลรวม st5_q1..st5_q5
-            department: it.department ?? null                 // ← เดิมเป็นข้อความสรุป v…/เสร็จ…
+            department: it.department ?? null,                 // ← เดิมเป็นข้อความสรุป v…/เสร็จ…
+            yearLevel: it.yearLevel ?? null
           }))
 
           if (cancelled) return
           setItems(mapped)
-          setTotalUsers(json.meta?.totalForms ?? 0)
           setCount(json.meta?.count ?? mapped.length)
         } catch (e: any) {
           if (!cancelled) setError(String(e?.message || e))
@@ -66,7 +68,7 @@ export default function DashboardPage() {
         }
       })()
     return () => { cancelled = true }
-  }, [search, page])
+  }, [page])
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(count / size)), [count])
 
@@ -74,7 +76,6 @@ export default function DashboardPage() {
   const handleDownloadCSV = async () => {
     try {
       const qs = new URLSearchParams()
-      if (search) qs.set('q', search)
 
       const res = await fetch(`/api/admin/export_csv?${qs.toString()}`, { method: 'GET' })
       if (!res.ok) throw new Error('ดาวน์โหลดไม่สำเร็จ')
@@ -133,30 +134,14 @@ export default function DashboardPage() {
             </Link>
           </nav>
         </div>
-        <div className="flex flex-col gap-3">
-          <Link href="/Login" className="flex items-center gap-3 px-5 py-3 rounded-xl bg-red-500 hover:bg-red-400 transition-all duration-300 shadow-md">
-            <ArrowRightOnRectangleIcon className="w-6 h-6" /> ออกจากระบบ
-          </Link>
+        <div className="flex flex-col gap-3 px-5">
+          <LogoutButton />
         </div>
       </aside>
 
       {/* Main */}
       <main className="flex-1 p-8 overflow-y-auto space-y-8">
         {/* Cards */}
-        <div className="flex flex-col md:flex-row gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-            className="bg-white/70 backdrop-blur-md shadow-2xl rounded-3xl p-6 border border-white/30 w-full md:w-1/3">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                <UserIcon className="w-8 h-8" />
-              </div>
-              <div>
-                <p className="text-gray-500 font-medium">ผู้ใช้ทั้งหมดในระบบ</p>
-                <p className="text-2xl font-bold text-blue-600">{totalUsers}</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
 
         {/* Header + search */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
@@ -165,19 +150,6 @@ export default function DashboardPage() {
             <span className="ml-2 text-sm text-gray-500">(แสดงผลตามตัวกรอง: {count} คน)</span>
           </h2>
 
-          <div className="relative w-full md:w-64">
-            <input
-              type="text"
-              placeholder="ค้นหาผู้ใช้..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-              className="w-full pl-4 pr-10 py-2.5 rounded-2xl border border-white/30 bg-white/60 backdrop-blur-md shadow focus:ring-2 focus:ring-blue-400 focus:border-blue-300"
-            />
-            {search && (
-              <button onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">✕</button>
-            )}
-          </div>
         </div>
 
         {/* List */}
@@ -190,7 +162,7 @@ export default function DashboardPage() {
           )}
 
           {!loading && !error && items.map((u) => (
-            <Link key={u.userId} href={{pathname:`/admin/users`,query:{user_id:u.userId}}} className="block">
+            <Link key={u.userId} href={{ pathname: `/admin/users`, query: { user_id: u.userId } }} className="block">
               <motion.div
                 whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(0,0,0,0.12)" }}
                 transition={{ duration: 0.2 }}
@@ -205,7 +177,9 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-800">{u.name ?? 'ไม่ระบุชื่อ'}</p>
-                    <p className="text-sm text-gray-500">{u.department ?? '—'}</p>
+                    <p className="text-sm text-gray-500">
+                      {u.department ?? '—'} {u.yearLevel ? ` / ${u.yearLevel}` : ''}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-6">

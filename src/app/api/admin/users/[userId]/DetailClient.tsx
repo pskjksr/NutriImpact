@@ -203,11 +203,9 @@ export default function DetailClient({ userId }: { userId: string }) {
             <div className="bg-white rounded-2xl shadow border p-6">
                 <h2 className="text-xl font-bold mb-3">รายละเอียดแบบฟอร์ม</h2>
                 <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-700">
-                    <div><span className="text-gray-500">Session:</span> {summary.sessionId}</div>
                     <div><span className="text-gray-500">ฟอร์ม:</span> {summary.formSlug ?? '—'} (v{summary.version ?? '—'})</div>
                     <div><span className="text-gray-500">เริ่ม:</span> {summary.startedAt ? new Date(summary.startedAt).toLocaleString() : '—'}</div>
                     <div><span className="text-gray-500">เสร็จ:</span> {summary.finishedAt ? new Date(summary.finishedAt).toLocaleString() : '—'}</div>
-                    <div><span className="text-gray-500">สถานะ:</span> {summary.status ?? '—'} · {summary.progress ?? 0}%</div>
                     <div><span className="text-gray-500">เพศ/ชั้นปี/แผนก:</span> {summary.gender ?? '—'} / {summary.yearLevel ?? '—'} / {summary.department ?? '—'}</div>
                     <div><span className="text-gray-500">BMI/BSA:</span> {summary.bmi ?? '—'} ({summary.bmiStatus ?? '—'}) / {summary.bsa ?? '—'} ({summary.bsaStatus ?? '—'})</div>
                     <div><span className="text-gray-500">คะแนนเครียดรวม:</span> <span className="font-semibold">{summary.stress ?? stressTotal}</span></div>
