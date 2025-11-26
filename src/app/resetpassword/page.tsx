@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
         sessionStorage.setItem("otp_target", phone);
         sessionStorage.setItem("otp_channel", "sms");
       } else {
-        alert("รูปแบบไม่ถูก ต้องเป็นอีเมล หรือเบอร์แบบ +66xxxxxxxx");
+        alert("รูปแบบไม่ถูก ต้องเป็นอีเมล");
         return;
       }
 
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
         <motion.div variants={fadeInUp} custom={2} className="mb-6">
           <input
             type="text"
-            placeholder="อีเมล หรือ +66xxxxxxxxx"
+            placeholder="อีเมล"
             value={input}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
             className="w-full px-5 py-4 rounded-2xl bg-white/90 border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm placeholder:text-gray-500 transition duration-300 hover:shadow-md focus:shadow-xl"
