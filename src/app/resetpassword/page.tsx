@@ -83,7 +83,7 @@ export default function ForgotPasswordPage() {
         </motion.div>
 
         <motion.p variants={fadeInUp} custom={1} className="text-center text-gray-600 mb-10 text-sm md:text-base leading-relaxed">
-          กรอกอีเมลหรือเบอร์โทร เพื่อรับรหัส OTP สำหรับตั้งรหัสผ่านใหม่
+          กรอกอีเมล เพื่อรับรหัส OTP สำหรับตั้งรหัสผ่านใหม่
         </motion.p>
 
         <motion.div variants={fadeInUp} custom={2} className="mb-6">
