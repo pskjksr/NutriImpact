@@ -111,24 +111,7 @@ export default function SignupForm() {
     }
   };
 
-  const handleOAuth = async (provider: "google") => {
-    try {
-      setLoading(true);
-      const redirectTo =
-        typeof window !== "undefined"
-          ? `${window.location.origin}/Login`
-          : undefined;
 
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo },
-      });
-      if (error) setErrors({ general: error.message });
-      // จะถูกพาไปรอบ OAuth แล้วกลับมาเอง
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
@@ -231,16 +214,7 @@ export default function SignupForm() {
         </motion.button>
 
         {/* OAuth (ทางเลือก) */}
-        <motion.button
-          variants={fadeInUp}
-          custom={4.2}
-          type="button"
-          disabled={loading}
-          onClick={() => handleOAuth("google")}
-          className="w-full py-3 mb-4 bg-white border border-gray-300 rounded-2xl text-gray-800 hover:bg-gray-50 transition disabled:opacity-60"
-        >
-          สมัครด้วย Google
-        </motion.button>
+
 
         {/* แจ้งเตือนทั่วไป */}
         {errors.general && (
