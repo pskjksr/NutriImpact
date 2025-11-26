@@ -69,7 +69,6 @@ export async function middleware(request: NextRequest) {
       '/password',
       '/success',
       '/finishotp',
-      '/newpassword',
       '/resetpassword'
   ]
 
