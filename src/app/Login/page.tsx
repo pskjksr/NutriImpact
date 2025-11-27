@@ -18,12 +18,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("savedEmail");
-    const savedPassword = localStorage.getItem("savedPassword");
     const savedRemember = localStorage.getItem("savedRemember");
 
-    if (savedEmail && savedPassword && savedRemember === "true") {
+    if (savedEmail && savedRemember === "true") {
       setEmail(savedEmail);
-      setPassword(savedPassword);
       setRemember(true);
     }
   }, []);
@@ -43,10 +41,14 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
 
-      // จำฉันไว้: เก็บแค่ email ก็พอ (ไม่เก็บ password)
-      if (remember) localStorage.setItem('savedEmail', email)
-      else localStorage.removeItem('savedEmail')
-
+      // จำฉันไว้: เก็บแค่ email และสถานะ remember (ไม่เก็บ password)
+      if (remember) {
+        localStorage.setItem('savedEmail', email)
+        localStorage.setItem('savedRemember', 'true')
+      } else {
+        localStorage.removeItem('savedEmail')
+        localStorage.removeItem('savedRemember')
+      }
       // เข้าสู่ระบบสำเร็จ → ไปหน้าหลักของแอดมิน
       router.push('/Findevaluationresults')
     } catch (err: any) {
@@ -101,12 +103,11 @@ export default function LoginPage() {
           <motion.div variants={fadeInUp} custom={1} className="mb-5">
             <input
               type="text"
-              placeholder="อีเมลหรือโทรศัพท์"
+              placeholder="อีเมล"
               value={email}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-              className={`w-full px-5 py-4 rounded-2xl bg-white/90 border ${
-                errors.email ? "border-red-500" : "border-gray-200"
-              } focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-md placeholder:text-gray-400 transition h-12`}
+              className={`w-full px-5 py-4 rounded-2xl bg-white/90 border ${errors.email ? "border-red-500" : "border-gray-200"
+                } focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-md placeholder:text-gray-400 transition h-12`}
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </motion.div>
@@ -118,9 +119,8 @@ export default function LoginPage() {
               placeholder="รหัสผ่าน"
               value={password}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-              className={`w-full px-5 py-4 pr-12 rounded-2xl bg-white/90 border ${
-                errors.password ? "border-red-500" : "border-gray-200"
-              } focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-md placeholder:text-gray-400 transition h-12`}
+              className={`w-full px-5 py-4 pr-12 rounded-2xl bg-white/90 border ${errors.password ? "border-red-500" : "border-gray-200"
+                } focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-md placeholder:text-gray-400 transition h-12`}
             />
             <button
               type="button"
