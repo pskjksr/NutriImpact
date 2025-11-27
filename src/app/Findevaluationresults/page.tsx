@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { UserIcon, HomeIcon, ChartBarIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/solid"
+import { UserIcon, HomeIcon, ChartBarIcon, ArrowRightOnRectangleIcon, UsersIcon } from "@heroicons/react/24/solid"
 import LogoutButton from "@/components/LogoutButton"
 
 
@@ -131,6 +131,9 @@ export default function DashboardPage() {
             </Link>
             <Link href="/graph" className="flex items-center gap-3 px-5 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 transition-all duration-300 shadow-md">
               <ChartBarIcon className="w-6 h-6" /> กราฟวิเคราะห์ข้อมูล
+            </Link>
+            <Link href="/email-list" className="flex items-center gap-3 px-5 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 transition-all duration-300 shadow-md">
+              <UsersIcon className="w-6 h-6" /> รายชื่อ Email
             </Link>
           </nav>
         </div>

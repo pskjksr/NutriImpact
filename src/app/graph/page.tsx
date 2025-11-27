@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { HomeIcon, ChartBarIcon } from "@heroicons/react/24/solid";
+import { HomeIcon, ChartBarIcon, UsersIcon } from "@heroicons/react/24/solid";
 import LogoutButton from "@/components/LogoutButton";
 import { motion } from "framer-motion";
 
@@ -81,6 +81,12 @@ export default function StressAnalysisPage() {
               className="flex items-center gap-3 px-5 py-3 rounded-xl bg-white text-blue-600 shadow-inner font-bold"
             >
               <ChartBarIcon className="w-6 h-6" /> วิเคราะห์ความเครียด
+            </Link>
+            <Link
+              href="/email-list"
+              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 transition-all duration-300 shadow-md"
+            >
+              <UsersIcon className="w-6 h-6" /> รายชื่อ Email
             </Link>
           </nav>
         </div>
@@ -183,12 +189,12 @@ export default function StressAnalysisPage() {
                         <td className="px-6 py-4">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-medium ${student.level === "Low"
-                                ? "bg-green-100 text-green-700"
-                                : student.level === "Moderate"
-                                  ? "bg-yellow-100 text-yellow-700"
-                                  : student.level === "High"
-                                    ? "bg-orange-100 text-orange-700"
-                                    : "bg-red-100 text-red-700"
+                              ? "bg-green-100 text-green-700"
+                              : student.level === "Moderate"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : student.level === "High"
+                                  ? "bg-orange-100 text-orange-700"
+                                  : "bg-red-100 text-red-700"
                               }`}
                           >
                             {student.level}
