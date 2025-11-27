@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
         initial="hidden"
         animate="visible"
         className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl w-full max-w-md p-10 border border-gray-200 hover:shadow-2xl transition-all duration-500"
-      >ลืม0f0e
+      >
         <motion.div variants={fadeInUp} custom={0} className="flex justify-center mb-8">
           <h2 className="text-4xl font-extrabold text-gray-900 text-center">
             ลืมรหัสผ่าน
